@@ -61,6 +61,13 @@ def parse_id(x: str) -> int:
     except Exception:
         return 0
 
+def mark_done_batch(ws, target_row: int, user_id: int):
+    ws.batch_update([
+        {"range": f"C{target_row}", "values": [["TRUE"]]},
+        {"range": f"F{target_row}", "values": [[str(user_id)]]},
+        {"range": f"G{target_row}", "values": [[now_str()]]},
+    ])
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "🛒 Lista de compras\n"
@@ -149,9 +156,8 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text("❌ Item não encontrado (talvez já foi marcado).")
         return
 
-    ws.update_cell(target_row, 3, "TRUE")
-    ws.update_cell(target_row, 6, str(user.id))
-    ws.update_cell(target_row, 7, now_str())
+    # ✅ ALTERAÇÃO: 1 batch em vez de 3 update_cell
+    mark_done_batch(ws, target_row, user.id)
 
     text, markup = build_list_message_and_keyboard(ws)
     if markup:
@@ -171,8 +177,9 @@ def main():
     app.add_handler(CallbackQueryHandler(callback_handler))
 
     print("🤖 Bot lista compras a correr")
-    app.run_polling()  # mantém o bot ligado [web:627][web:633]
+    app.run_polling()
 
 if __name__ == "__main__":
     main()
+
 
