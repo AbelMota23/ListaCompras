@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "lista-de-compras-483617",
+  "private_key_id": "94f12708f276ac49b989d2a3f291a9bfbad4a2a4",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC8IebE7FJsMIuR\nBDC/bSpWgHkUCzqpIRH7lY233JVG1KaipPio13Ox119DEI9SvLcPHpREUPe255lr\n0chWK7W6i0BFYcN/H2hZdMeOeAmYIaG37LHE13G2gB5DOTxvE7F7mbKlTiApnMpW\nAL3XDWXuIL95xEff19d6QbTYkBENMv/XVBrPNI3KEXN3wmGnCuDbI/cmM9RCeZXA\nXTUljDup9a5XL+X8cDT3/wOG+AZ4VhqvWiktOX2iZmXxyKJB7K/KvIeH0H3Ia4Hv\nrn0eYcqsqmgGXrpMWjQ9/Do1XS97syDsbXNvPpac79+UtPQfsP8HzT3UC4VmG+7d\nSuG0S0xVAgMBAAECggEAAlT36PhLlpRiIScIelGeamS8m3dUKnqCyuKHV4Bqx+5P\ng8lAXR9mi2LHBywdCq0qJmF+UaZ18OodUw0joDskd9kir87OvzRNdSZnFCiqvcb/\nm9RZk74JO8uKFH07dt5V9IPq3J+uSGBtevQWu6P/38a/eNaU/tJManMxYanPfEwL\nDjF4IXiExeGrOoQO5Plb9vSmDg8JIqZ8qxcPLn6sInw5/djott8JL6dspL3wCDr+\n27VQKT4/kMjzA18QoXQLTEyseiGpiAjycMrsvFGObTfIL4JI5FSfmnMnr5/JvEeY\nladZhTSPj3jIHjE1vO4QvU75lcK5nCGEQBiAifaLwQKBgQD2oZlBMBjWuPFvgyf9\ncV2coztw+IKyVVTMapCo8wSaOz9QXfOdzyapxe+a0IJmOwE6TwD6tGuXT7OolJwo\nczDcgT3EpUWKLSC3LgqKy36xQKaTcC26QePvKfb5r32yr+/oJZDJ132Ke/j3SD/O\n5cjLPeWuFMq4Chpnxp/AjmeAkQKBgQDDR2wsNR7/8tZXuZTMuLIeMnZwhqNqTDmy\nCvx39XA3fsaaqubOfxe7uFQEIVHFX5F186zx/976RYKWL3QeCwc4+DKRQk1KQsv0\nisuysYwzVa3hNKoZKdBQ7OoAg4SCIcv7xU6VdXuvXKDl5ArcEbxlkXqpQHfws12I\nrm9DPy3xhQKBgQDmCgSwUPRaE1be9C6wrrTqDTa8QI9nV0ApCpyzeTipwuljRL6e\nS0F8ySqb9DAsuoyCnn4DWZWhJK4mZ7bf49GHWuUKLj2WjFEfiso6e2RIYEz+6Hs+\nZ4b65OGAMrfDm2bh2WgbW+u0571oqPMbQCjxqWI55RrQXlwSv6jyKeFQgQKBgGWe\nbTQ0EIWwoMnV0REXq9j6+Zdk+PT/5aY5AViLaHH4jvE9rg4XJQqSyWW80Qicyt1O\niNkGBcrHEUWGPC7GHmQPBIGCtyXFzMzczVOYARVVqL5g4YNmtvjl0H+j8PinDbde\n3Z35HPwMf84h9WS/9gIEyof4/HFNZYcS/uNHpWjhAoGBAMdgnFEnCCBiCY7xrQln\nQintprzOOgwwWocpwGQrOhAWGe5Cxa3TCA+pznxUbBueVQ4jg/E0mIMyKKnDJqMP\nvq4VUlldOzW3yyLQn4+CW5gLHZa5pnjvQd25euirjd2Qzp2MV9QirFVTg200EbvP\nW+18HqR4ZSuQpLInOTkOfTAT\n-----END PRIVATE KEY-----\n",
+  "client_email": "lista-de-compras@lista-de-compras-483617.iam.gserviceaccount.com",
+  "client_id": "114037778925618361479",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/lista-de-compras%40lista-de-compras-483617.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
