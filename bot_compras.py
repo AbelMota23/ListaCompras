@@ -17,20 +17,18 @@ from telegram.ext import (
 load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-SHEET_NAME = "ListaCompras"  # nome exato da tua planilha
-GROUP_ID = int(os.getenv("GROUP_ID", "0"))
+SHEET_NAME = os.getenv("SHEET_NAME", "ListaCompras")  # nome exato do ficheiro Google Sheets
 
-# Cria credenciais.json a partir da variável do Railway (multiline é suportado). [web:233]
+# Cria credenciais.json a partir da variável (multiline no Railway)
 creds_json = os.getenv("GOOGLE_CREDS_JSON")
 if creds_json and not os.path.exists("credenciais.json"):
     with open("credenciais.json", "w", encoding="utf-8") as f:
         f.write(creds_json)
 
+HEADERS = ["id", "item", "done", "added_by", "added_at", "done_by", "done_at"]
+
 def now_str():
     return datetime.now().strftime("%d/%m/%Y %H:%M")
-
-def only_group(update: Update) -> bool:
-    return update.effective_chat and update.effective_chat.id == GROUP_ID  # chat id vem do update. [web:419]
 
 def conectar_google_sheets():
     scopes = [
@@ -40,14 +38,21 @@ def conectar_google_sheets():
     creds = Credentials.from_service_account_file("credenciais.json", scopes=scopes)
     return gspread.authorize(creds)
 
+def ensure_headers(ws):
+    try:
+        a1 = ws.acell("A1").value
+    except Exception:
+        a1 = None
+
+    if (a1 or "").strip().lower() != "id":
+        ws.clear()
+        ws.append_row(HEADERS)
+
 def get_ws():
     gc = conectar_google_sheets()
-    sh = gc.open_by_key(SPREADSHEET_ID)
-    try:
-        ws = sh.worksheet(TAB_NAME)
-    except Exception:
-        ws = sh.add_worksheet(title=TAB_NAME, rows=200, cols=10)
-        ws.append_row(["id", "item", "done", "added_by", "added_at", "done_by", "done_at"])
+    sh = gc.open(SHEET_NAME)
+    ws = sh.sheet1  # 1ª aba
+    ensure_headers(ws)
     return ws
 
 def parse_id(x: str) -> int:
@@ -56,24 +61,15 @@ def parse_id(x: str) -> int:
     except Exception:
         return 0
 
-async def chatid(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Ajuda a obter o chat id diretamente pelo update. [web:423]
-    await update.message.reply_text(f"chat_id = {update.effective_chat.id}")
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not only_group(update):
-        return
     await update.message.reply_text(
-        "🛒 Lista de compras (grupo)\n"
+        "🛒 Lista de compras\n"
         "Adicionar: /add leite\n"
         "Ver lista: /list\n"
         "Marcar comprado: botão ✅"
     )
 
 async def add_item(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not only_group(update):
-        return
-
     if not context.args:
         await update.message.reply_text("Uso: /add <item> (ex: /add leite)")
         return
@@ -107,15 +103,21 @@ def build_list_message_and_keyboard(ws):
 
     lines = ["🛒 O que falta comprar:"]
     keyboard = []
+
     for item_id, item_name in pending:
         lines.append(f"- {item_name}")
-        # callback_data identifica qual item foi clicado. [web:481]
-        keyboard.append([InlineKeyboardButton("✅ Comprado", callback_data=f"done:{item_id}")])
+
+        short = item_name.strip()
+        if len(short) > 30:
+            short = short[:27] + "..."
+
+        keyboard.append([
+            InlineKeyboardButton(f"✅ {short}", callback_data=f"done:{item_id}")
+        ])
+
     return "\n".join(lines), InlineKeyboardMarkup(keyboard)
 
 async def list_items(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not only_group(update):
-        return
     ws = get_ws()
     text, markup = build_list_message_and_keyboard(ws)
     if markup:
@@ -125,11 +127,7 @@ async def list_items(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()  # confirma o clique no botão. [web:477]
-
-    if not only_group(update):
-        await query.answer("Este bot só funciona no grupo configurado.", show_alert=True)
-        return
+    await query.answer()
 
     data = query.data or ""
     if not data.startswith("done:"):
@@ -142,7 +140,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     rows = ws.get_all_values()
 
     target_row = None
-    for idx, r in enumerate(rows[1:], start=2):  # linha 1 é header
+    for idx, r in enumerate(rows[1:], start=2):  # start=2 porque linha 1 é header
         if len(r) >= 1 and str(r[0]) == str(item_id):
             target_row = idx
             break
@@ -155,7 +153,6 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ws.update_cell(target_row, 6, str(user.id))
     ws.update_cell(target_row, 7, now_str())
 
-    # Atualiza a própria mensagem com a lista atualizada (re-render). [web:477]
     text, markup = build_list_message_and_keyboard(ws)
     if markup:
         await query.edit_message_text(text, reply_markup=markup)
@@ -165,21 +162,17 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     if not TELEGRAM_TOKEN:
         raise RuntimeError("Falta TELEGRAM_TOKEN")
-    if not SPREADSHEET_ID:
-        raise RuntimeError("Falta SPREADSHEET_ID")
-    if not GROUP_ID:
-        raise RuntimeError("Falta GROUP_ID")
 
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("chatid", chatid))
     app.add_handler(CommandHandler("add", add_item))
     app.add_handler(CommandHandler("list", list_items))
     app.add_handler(CallbackQueryHandler(callback_handler))
 
-    print("🤖 Bot lista família a correr")
-    app.run_polling()
+    print("🤖 Bot lista compras a correr")
+    app.run_polling()  # mantém o bot ligado [web:627][web:633]
 
 if __name__ == "__main__":
     main()
+
