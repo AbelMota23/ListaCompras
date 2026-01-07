@@ -1,4 +1,5 @@
 import os
+import time
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -55,12 +56,6 @@ def get_ws():
     ensure_headers(ws)
     return ws
 
-def parse_id(x: str) -> int:
-    try:
-        return int(str(x).strip())
-    except Exception:
-        return 0
-
 def mark_done_batch(ws, target_row: int, user_id: int):
     ws.batch_update([
         {"range": f"C{target_row}", "values": [["TRUE"]]},
@@ -85,12 +80,9 @@ async def add_item(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
 
     ws = get_ws()
-    rows = ws.get_all_values()
 
-    last_id = 0
-    if len(rows) > 1:
-        last_id = max(parse_id(r[0]) for r in rows[1:] if r)
-    new_id = last_id + 1
+    # ✅ ALTERAÇÃO: id único sem ler a sheet toda
+    new_id = int(time.time() * 1000)
 
     ws.append_row([new_id, item, "FALSE", str(user.id), now_str(), "", ""])
     await update.message.reply_text(f"✅ Adicionado: {item}")
@@ -156,7 +148,6 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text("❌ Item não encontrado (talvez já foi marcado).")
         return
 
-    # ✅ ALTERAÇÃO: 1 batch em vez de 3 update_cell
     mark_done_batch(ws, target_row, user.id)
 
     text, markup = build_list_message_and_keyboard(ws)
@@ -181,5 +172,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
